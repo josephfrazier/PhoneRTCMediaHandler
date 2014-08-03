@@ -16,5 +16,7 @@
     "url": "https://github.com/joseph-onsip/PhoneRTCMediaHandler/issues"
   },
   "homepage": "https://github.com/joseph-onsip/PhoneRTCMediaHandler",
-  "dependencies": {}
+  "dependencies": {
+    "newer": "^0.1.5"
+  }
 }

@@ -1,4 +1,5 @@
 var SIP = require('sip.js');
+var newer = require('newer');
 
 var PhoneRTCMediaHandler = function(session, options) {
   var events = [
@@ -193,4 +194,5 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
   }},
 });
 
+PhoneRTCMediaHandler = newer(PhoneRTCMediaHandler);
 module.exports = PhoneRTCMediaHandler;
