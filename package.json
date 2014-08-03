@@ -1,0 +1,20 @@
+{
+  "name": "PhoneRTCMediaHandler",
+  "version": "0.0.0",
+  "description": "PhoneRTCMediaHandler ====================",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joseph-onsip/PhoneRTCMediaHandler"
+  },
+  "author": "Joseph Frazier <joseph@onsip.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joseph-onsip/PhoneRTCMediaHandler/issues"
+  },
+  "homepage": "https://github.com/joseph-onsip/PhoneRTCMediaHandler",
+  "dependencies": {}
+}
