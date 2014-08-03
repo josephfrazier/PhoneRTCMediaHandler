@@ -1,4 +1,11 @@
-var newer = require('newer');
+// adapted from https://github.com/safareli/newer/blob/d68965f5b899410b7f4c287a7a5f8a7711b97533/lib/newer.js
+function newer (constructor) {
+  return function() {
+    var instance = Object.create(constructor.prototype);
+    var result = constructor.apply(instance, arguments);
+    return typeof result === 'object' ? result : instance;
+  };
+}
 
 module.exports = function(SIP) {
 var PhoneRTCMediaHandler = function (session, options) {
