@@ -1,0 +1,17 @@
+{
+  "name": "phonertcmediahandler",
+  "main": "index.js",
+  "version": "0.1.1",
+  "homepage": "https://github.com/joseph-onsip/PhoneRTCMediaHandler",
+  "authors": [
+    "Joseph Frazier <joseph@onsip.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
