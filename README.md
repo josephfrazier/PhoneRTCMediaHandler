@@ -8,6 +8,7 @@ Usage (adapted from [sipjs-cordova](https://github.com/joseph-onsip/sipjs-cordov
 
 **Shell:**
 ```shell
+cordova plugin add com.onsip.sipjs
 cordova plugin add https://github.com/alongubkin/phonertc
 cordova plugin add com.sipjs.phonertc
 ```
