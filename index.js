@@ -81,7 +81,7 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
                     onFailure = onFailure;
                     mediaHint = mediaHint;
     if (!this.phonertc.role) {
-      this.phonertcCall('caller', mediaHint);
+      this.phonertcCall(false, mediaHint);
     }
 
     this.phonertc.onIceGatheringComplete = function () {
@@ -125,7 +125,8 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     }
   }},
 
-  phonertcCall: {writable: true, value: function phonertcCall (role, mediaHint) {
+  phonertcCall: {writable: true, value: function phonertcCall (remoteOffer, mediaHint) {
+    var role = remoteOffer ? 'callee' : 'caller';
     this.logger.log("XXX phonertcCall: " + role);
     this.phonertc.role = role;
 
@@ -144,6 +145,10 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
         console.log('Call disconnected!');
       }
     };
+
+    if (remoteOffer) {
+      callOptions.remoteOffer = remoteOffer;
+    }
 
     if (mediaHint && mediaHint.constraints && mediaHint.constraints.video) {
       callOptions.video = {};
@@ -179,8 +184,7 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     }
 
     if (!this.phonertc.role) {
-      this.phonertcCall('callee');
-      this.phonertc.onIceGatheringComplete = setRemoteDescription.bind(this, 'offer', sdp);
+      this.phonertcCall(sdp);
     }
     else if (this.phonertc.role = 'caller') {
       setRemoteDescription.call(this, 'answer', sdp);
