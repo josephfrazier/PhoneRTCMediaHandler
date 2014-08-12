@@ -130,7 +130,7 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     this.phonertc.role = role;
 
     var callOptions = {
-      isInitator: role === 'caller', // Caller or callee?
+      isInitiator: role === 'caller', // Caller or callee?
       turn: {
         host: 'turn:turn.example.com:3478',
         username: 'user',
