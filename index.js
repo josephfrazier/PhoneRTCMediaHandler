@@ -84,14 +84,11 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
       this.phonertcCall(false, mediaHint);
     }
 
-    this.phonertc.onIceGatheringComplete = function () {
-      var sdp = this.phonertc.localSdp;
-      if (this.phonertc.role !== 'caller') {
-        sdp = sdp.replace('a=setup:actpass', 'a=setup:passive');
-      }
-      sdp = sdp.replace(/a=crypto.*\r\n/g, '');
-      onSuccess(sdp);
-    }.bind(this);
+    if (this.phonertc.localSdpComplete) {
+      onSuccess(this.phonertc.localSdpComplete);
+    } else {
+      this.phonertc.onLocalSdpComplete = onSuccess;
+    }
   }},
 
   phonertcSendMessageCallback: {writable: true, value: function phonertcSendMessageCallback (data) {
@@ -117,10 +114,21 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
       }
     }
     else if (data.type === 'IceGatheringChange') {
-      if (data.state === "COMPLETE" && this.phonertc.onIceGatheringComplete) {
-        this.phonertc.onIceGatheringComplete();
+      if (data.state === "COMPLETE") {
+        if (this.phonertc.localSdpComplete) {
+          return;
+        }
+        var sdp = this.phonertc.localSdp;
+        if (this.phonertc.role !== 'caller') {
+          sdp = sdp.replace('a=setup:actpass', 'a=setup:passive');
+        }
+        sdp = sdp.replace(/a=crypto.*\r\n/g, '');
+        this.phonertc.localSdpComplete = sdp;
+        if (this.phonertc.onLocalSdpComplete) {
+          this.phonertc.onLocalSdpComplete(this.phonertc.localSdpComplete);
+        }
         // make sure this only gets called once
-        this.phonertc.onIceGatheringComplete = null;
+        this.phonertc.onLocalSdpComplete = null;
       }
     }
   }},
@@ -177,17 +185,16 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
   * @param {Function} onFailure
   */
   setDescription: {writable: true, value: function setDescription (sdp, onSuccess, onFailure) {
-    function setRemoteDescription (type, sdp) {
-      this.logger.log("XXX setRemoteDescription: " + type + "\n" + sdp);
-      cordova.plugins.phonertc.receiveMessage({type: type, sdp: sdp});
-      onSuccess();
-    }
+    var asyncSuccess = setTimeout.bind(window, onSuccess, 0);
 
     if (!this.phonertc.role) {
       this.phonertcCall(sdp);
+      asyncSuccess();
     }
     else if (this.phonertc.role = 'caller') {
-      setRemoteDescription.call(this, 'answer', sdp);
+      this.logger.log("XXX setRemoteDescription: " + type + "\n" + sdp);
+      cordova.plugins.phonertc.receiveMessage({type: 'answer', sdp: sdp});
+      onSuccess();
     }
     else {
       this.logger.error('XXX setDescription called, but this.phonertc.role = ' + this.phonertc.role);
