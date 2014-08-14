@@ -1,4 +1,4 @@
-// adapted from https://github.com/safareli/newer/blob/d68965f5b899410b7f4c287a7a5f8a7711b97533/lib/newer.js
+cordova.define("com.sipjs.phonertc.mediahandler", function(require, exports, module) { // adapted from https://github.com/safareli/newer/blob/d68965f5b899410b7f4c287a7a5f8a7711b97533/lib/newer.js
 function newer (constructor) {
   return function() {
     var instance = Object.create(constructor.prototype);
@@ -81,7 +81,35 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
                     onFailure = onFailure;
                     mediaHint = mediaHint;
     if (!this.phonertc.role) {
-      this.phonertcCall(false, mediaHint);
+      var callOptions = {
+        turn: {
+          host: 'turn:turn.example.com:3478',
+          username: 'user',
+          password: 'pass'
+        },
+        sendMessageCallback: this.phonertcSendMessageCallback.bind(this),
+        answerCallback: function () {
+          console.log('Callee answered!');
+        },
+        disconnectCallback: function () {
+          console.log('Call disconnected!');
+        }
+      };
+      if (mediaHint && mediaHint.constraints && mediaHint.constraints.video) {
+        callOptions.video = {};
+        if (mediaHint.render) {
+          var localVideo = mediaHint.render.local && mediaHint.render.local.video;
+          if (localVideo) {
+            callOptions.video.localVideo = localVideo;
+          }
+          var remoteVideo = mediaHint.render.remote && mediaHint.render.remote.video;
+          if (remoteVideo) {
+            callOptions.video.remoteVideo = remoteVideo;
+          }
+        }
+      }
+      this.logger.log("XXX phonertcGetDescriptionCall");
+      cordova.plugins.phonertc.getDescription(callOptions);
     }
 
     if (this.phonertc.localSdpComplete) {
@@ -119,9 +147,11 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
           return;
         }
         var sdp = this.phonertc.localSdp;
+/*
         if (this.phonertc.role !== 'caller') {
           sdp = sdp.replace('a=setup:actpass', 'a=setup:passive');
         }
+*/
         sdp = sdp.replace(/a=crypto.*\r\n/g, '');
         this.phonertc.localSdpComplete = sdp;
         if (this.phonertc.onLocalSdpComplete) {
@@ -173,7 +203,6 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
         }
       }
     }
-
     cordova.plugins.phonertc.call(callOptions);
   }},
 
@@ -185,9 +214,32 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
   * @param {Function} onFailure
   */
   setDescription: {writable: true, value: function setDescription (sdp, onSuccess, onFailure) {
+      var callOptions = {
+      turn: {
+        host: 'turn:turn.example.com:3478',
+        username: 'user',
+        password: 'pass'
+      },
+      callBack: onSuccess,
+      sdp: sdp
+      };
+/*
+      sendMessageCallback: this.phonertcSendMessageCallback.bind(this),
+      answerCallback: function () {
+        console.log('Callee answered!');
+      },
+      disconnectCallback: function () {
+        console.log('Call disconnected!');
+      }
+    };
+    callOptions.sdp = sdp;
+*/
+    cordova.plugins.phonertc.setDescription(callOptions);
+/*
     var asyncSuccess = setTimeout.bind(window, onSuccess, 0);
 
     if (!this.phonertc.role) {
+
       this.phonertcCall(sdp);
       asyncSuccess();
     }
@@ -200,6 +252,7 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
       this.logger.error('XXX setDescription called, but this.phonertc.role = ' + this.phonertc.role);
       onFailure();
     }
+*/
   }},
 
 // Functions the session can use, but only because it's convenient for the application
@@ -215,3 +268,5 @@ PhoneRTCMediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
 PhoneRTCMediaHandler = newer(PhoneRTCMediaHandler);
 return PhoneRTCMediaHandler;
 };
+
+});
